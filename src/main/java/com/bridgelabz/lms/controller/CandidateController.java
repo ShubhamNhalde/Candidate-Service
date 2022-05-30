@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RequestMapping("/hired-candidate")
 @RestController
@@ -59,6 +58,27 @@ public class CandidateController {
                                                            @RequestBody HiredCandidateDto hiredCandidateDto) {
         HiredCandidate hiredCandidate = iHiredCandidateService.updateCandidate(id, hiredCandidateDto);
         ResponseDto response = new ResponseDto("UPDATED CANDIDATE DATA SUCCESSFULLY !!!", hiredCandidate);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<ResponseDto> getCount (){
+        long hiredCandidate = iHiredCandidateService.count1();
+        ResponseDto response = new ResponseDto("Candidates Count",hiredCandidate);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/findBystatus/{status}")
+    public ResponseEntity<ResponseDto> getStatus(@PathVariable String status, @RequestBody HiredCandidateDto hiredCandidateDto){
+        HiredCandidate hiredCandidate = iHiredCandidateService.updateStatus(status, hiredCandidateDto);
+        ResponseDto responseDto = new ResponseDto("Candidate Status Updated", hiredCandidate);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/jobofferMail/{id}")
+    public ResponseEntity<ResponseDto> sendOffer(@PathVariable long id){
+        HiredCandidate hiredCandidate = iHiredCandidateService.jobOfferMail(id);
+        ResponseDto response = new ResponseDto("Email send successfully", hiredCandidate);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

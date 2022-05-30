@@ -16,4 +16,10 @@ public interface IHiredCandidateService {
     HiredCandidate deleteCandidate(Long id);
 
     HiredCandidate updateCandidate(long id, HiredCandidateDto hiredCandidateDto);
+
+     long count1();
+
+     HiredCandidate updateStatus(String status, HiredCandidateDto hiredCandidateDto);
+
+     HiredCandidate jobOfferMail(long id );
 }

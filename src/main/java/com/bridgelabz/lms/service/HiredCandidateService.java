@@ -3,6 +3,7 @@ package com.bridgelabz.lms.service;
 import com.bridgelabz.lms.dto.HiredCandidateDto;
 import com.bridgelabz.lms.model.HiredCandidate;
 import com.bridgelabz.lms.repository.CandidateRepository;
+import com.bridgelabz.lms.util.EmailSenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ public class HiredCandidateService implements IHiredCandidateService {
 
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
+
+    @Autowired
+    EmailSenderService sender;
 
     public HiredCandidate createCandidate(HiredCandidateDto hiredCandidateDto) {
         HiredCandidate hiredCandidate = new HiredCandidate(hiredCandidateDto);
@@ -47,11 +51,40 @@ public class HiredCandidateService implements IHiredCandidateService {
     public HiredCandidate updateCandidate(long id, HiredCandidateDto hiredCandidateDto) {
         Optional<HiredCandidate> hiredCandidate = candidateRepository.findById(id);
         if (hiredCandidate.isPresent()){
-            HiredCandidate update = new HiredCandidate(id,hiredCandidateDto);
-            candidateRepository.save(update);
-            return update;
-        }else {
-            throw null;
+            hiredCandidate.get().setFirstName(hiredCandidateDto.getFirstName());
+            hiredCandidate.get().setLastName(hiredCandidateDto.getLastName());
+            hiredCandidate.get().setEmail(hiredCandidateDto.getEmail());
+            hiredCandidate.get().setMobileNumber(hiredCandidateDto.getMobileNumber());
+            hiredCandidate.get().setHiredDate(hiredCandidateDto.getHiredDate());
+            hiredCandidate.get().setDegree(hiredCandidateDto.getDegree());
+            hiredCandidate.get().setOnBoardingStatus(hiredCandidateDto.getOnBoardingStatus());
+            hiredCandidate.get().setStatus(hiredCandidateDto.getStatus());
+            hiredCandidate.get().setJoinDate(hiredCandidateDto.getJoinDate());
+            hiredCandidate.get().setLocation(hiredCandidateDto.getLocation());
         }
+        return candidateRepository.save(hiredCandidate.get());
     }
+
+    @Override
+    public long count1() {
+        return candidateRepository.count();
+    }
+
+    @Override
+    public HiredCandidate updateStatus(String status, HiredCandidateDto hiredCandidateDto) {
+        Optional<HiredCandidate> updateStatus = candidateRepository.getCandidateByStatus(status);
+        updateStatus.get().setStatus(hiredCandidateDto.getStatus());
+        return candidateRepository.save(updateStatus.get());
+    }
+
+    @Override
+    public HiredCandidate jobOfferMail(long id) {
+        Optional<HiredCandidate> hiredCandidate = candidateRepository.findById(id);
+        if (hiredCandidate.isPresent()){
+            sender.sendEmail(hiredCandidate.get().getEmail(), "Job Offer", "This is a Candidate Job Offer Notification");
+        }
+        return hiredCandidate.get();
+    }
+
+
 }
