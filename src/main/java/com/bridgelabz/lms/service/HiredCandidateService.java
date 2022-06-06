@@ -4,6 +4,7 @@ import com.bridgelabz.lms.dto.HiredCandidateDto;
 import com.bridgelabz.lms.model.HiredCandidate;
 import com.bridgelabz.lms.repository.CandidateRepository;
 import com.bridgelabz.lms.util.EmailSenderService;
+import com.bridgelabz.lms.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +24,15 @@ public class HiredCandidateService implements IHiredCandidateService {
     @Autowired
     EmailSenderService sender;
 
-    public HiredCandidate createCandidate(HiredCandidateDto hiredCandidateDto) {
+    @Autowired
+    TokenUtil tokenUtil;
+
+    public String createCandidate(HiredCandidateDto hiredCandidateDto) {
         HiredCandidate hiredCandidate = new HiredCandidate(hiredCandidateDto);
         hiredCandidate.setId(sequenceGeneratorService.generateSequence(HiredCandidate.SEQUENCE_NAME));
-        return candidateRepository.save(hiredCandidate);
+        candidateRepository.save(hiredCandidate);
+        String token = tokenUtil.createToken((int) hiredCandidate.getId());
+        return token;
     }
 
     @Override
@@ -36,19 +42,24 @@ public class HiredCandidateService implements IHiredCandidateService {
     }
 
     @Override
-    public HiredCandidate getCandidateById(long id) {
-        return candidateRepository.findById(id).orElseThrow(null);
+    public HiredCandidate getCandidateById(String token) {
+        long id = tokenUtil.decodeToken(token);
+        Optional<HiredCandidate> hiredCandidate = Optional.ofNullable(candidateRepository.findById(id).orElseThrow(null));
+        return hiredCandidate.get();
+       // return candidateRepository.findById(id).orElseThrow(null);
     }
 
     @Override
-    public HiredCandidate deleteCandidate(Long id) {
+    public HiredCandidate deleteCandidate(String token) {
+        long id = tokenUtil.decodeToken(token);
         Optional<HiredCandidate> hiredCandidate = candidateRepository.findById(id);
         hiredCandidate.ifPresent(candidate -> candidateRepository.delete(candidate));
         return null;
     }
 
     @Override
-    public HiredCandidate updateCandidate(long id, HiredCandidateDto hiredCandidateDto) {
+    public HiredCandidate updateCandidate(String token, HiredCandidateDto hiredCandidateDto) {
+        long id = tokenUtil.decodeToken(token);
         Optional<HiredCandidate> hiredCandidate = candidateRepository.findById(id);
         if (hiredCandidate.isPresent()){
             hiredCandidate.get().setFirstName(hiredCandidateDto.getFirstName());
@@ -71,17 +82,21 @@ public class HiredCandidateService implements IHiredCandidateService {
     }
 
     @Override
-    public HiredCandidate updateStatus(String status, HiredCandidateDto hiredCandidateDto) {
-        Optional<HiredCandidate> updateStatus = candidateRepository.getCandidateByStatus(status);
+    public HiredCandidate updateStatus(String token, HiredCandidateDto hiredCandidateDto) {
+        long id = tokenUtil.decodeToken(token);
+        Optional<HiredCandidate> updateStatus = candidateRepository.findById(id);
         updateStatus.get().setStatus(hiredCandidateDto.getStatus());
         return candidateRepository.save(updateStatus.get());
     }
 
     @Override
-    public HiredCandidate jobOfferMail(long id) {
+    public HiredCandidate jobOfferMail(String token) {
+        long id = tokenUtil.decodeToken(token);
         Optional<HiredCandidate> hiredCandidate = candidateRepository.findById(id);
         if (hiredCandidate.isPresent()){
-            sender.sendEmail(hiredCandidate.get().getEmail(), "Job Offer", "This is a Candidate Job Offer Notification");
+            sender.sendEmail(hiredCandidate.get().getEmail(), "Job Offer", " Hi " + hiredCandidate.get().getFirstName()
+                    + "\n You have been selected as the best candidate for the software engineer position. Congratulations!");
+
         }
         return hiredCandidate.get();
     }

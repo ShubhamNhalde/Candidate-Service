@@ -7,19 +7,19 @@ import java.util.List;
 
 public interface IHiredCandidateService {
 
-    HiredCandidate createCandidate(HiredCandidateDto hiredCandidateDto);
+    String createCandidate(HiredCandidateDto hiredCandidateDto);
 
     List<HiredCandidate> getAllCandidates();
 
-    HiredCandidate getCandidateById(long id);
+    HiredCandidate getCandidateById(String token);
 
-    HiredCandidate deleteCandidate(Long id);
+    HiredCandidate deleteCandidate(String token);
 
-    HiredCandidate updateCandidate(long id, HiredCandidateDto hiredCandidateDto);
+    HiredCandidate updateCandidate(String token, HiredCandidateDto hiredCandidateDto);
 
      long count1();
 
-     HiredCandidate updateStatus(String status, HiredCandidateDto hiredCandidateDto);
+     HiredCandidate updateStatus(String token, HiredCandidateDto hiredCandidateDto);
 
-     HiredCandidate jobOfferMail(long id );
+     HiredCandidate jobOfferMail(String token);
 }
