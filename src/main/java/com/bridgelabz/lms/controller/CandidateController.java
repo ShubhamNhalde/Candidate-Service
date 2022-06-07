@@ -1,6 +1,5 @@
 package com.bridgelabz.lms.controller;
 
-
 import com.bridgelabz.lms.dto.HiredCandidateDto;
 import com.bridgelabz.lms.dto.ResponseDto;
 import com.bridgelabz.lms.model.HiredCandidate;
