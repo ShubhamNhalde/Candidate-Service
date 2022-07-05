@@ -28,6 +28,7 @@ public class CandidateController {
     @Autowired
     IHiredCandidateService iHiredCandidateService;
 
+    //add user
     @PostMapping("/addCandidate")
     public ResponseEntity<ResponseDto> createUser(@Valid @RequestBody HiredCandidateDto hiredCandidateDto) {
         String hiredCandidate = iHiredCandidateService.createCandidate(hiredCandidateDto);
